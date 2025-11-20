@@ -62,11 +62,11 @@
 <svg viewBox="0 0 {width} {height}" xmlns="http://www.w3.org/2000/svg">
   <!-- Source terminal -->
   <rect x="0" y={channelY} width="50" height={sourcedrainHeight} fill="var(--terminal-color)" />
-  <text x="20" y={channelY + sourcedrainHeight / 2} font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle" transform="rotate(-90 20 {channelY + sourcedrainHeight / 2})">SOURCE</text>
+  <text x="25" y={channelY + sourcedrainHeight / 2} font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle" transform="rotate(-90 25 {channelY + sourcedrainHeight / 2})">SOURCE</text>
   
   <!-- Drain terminal -->
   <rect x={width - 50} y={channelY} width="50" height={sourcedrainHeight} fill="var(--terminal-color)" />
-  <text x={width - 25} y={channelY + sourcedrainHeight / 2} font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle" transform="rotate(-90 {width - 20} {channelY + sourcedrainHeight / 2})">DRAIN</text>
+  <text x={width - 25} y={channelY + sourcedrainHeight / 2} font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle" transform="rotate(-90 {width - 25} {channelY + sourcedrainHeight / 2})">DRAIN</text>
   
   <!-- Gate electrode -->
   <rect x={sourceX} y={channelY-15} width={channelLength} height={5} fill="var(--terminal-color)" />

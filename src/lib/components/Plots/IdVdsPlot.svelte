@@ -12,7 +12,7 @@
   VDS.subscribe(value => vds = value);
 
   const config: AxisConfig = {
-    width: 400,
+    width: 100,
     height: 300,
     marginTop: 20,
     marginRight: 20,
@@ -20,14 +20,23 @@
     marginLeft: 50
   };
 
+  let containerWidth = 400;
+
   function updatePlot() {
     if (!svg) return;
+
+    // Update config width based on container
+    config.width = containerWidth;
 
     const svgSelection = d3.select(svg);
     svgSelection.selectAll('*').remove();
 
+    // Calculate y-axis max as 1.5 times current operating point ID
+    const currentId = Id(vgs, vds);
+    const yMax = currentId > 3 ? currentId * 1.5 : 3;
+
     const xScale = createXScale([0, 5], config);
-    const yScale = createYScale([0, 3], config);
+    const yScale = createYScale([0, yMax], config);
 
     drawXAxis(svgSelection, xScale, config, 'VDS (V)');
     drawYAxis(svgSelection, yScale, config, 'ID (mA)');
@@ -44,25 +53,17 @@
     const vdsSat = VdsSat(vgs);
     const regionPoints: [number, number][] = [[0, 0], [vdsSat, Id(vgs, vdsSat)], [vdsSat, 0]];
     
-    svgSelection.append('path')
-      .datum(regionPoints)
-      .attr('fill', 'var(--ohmic-region)')
-      .attr('opacity', 0.1)
-      .attr('d', d3.line()
-        .x(d => xScale(d[0]))
-        .y(d => yScale(d[1]))
-      );
+
 
     svgSelection.append('line')
       .attr('x1', xScale(vdsSat))
       .attr('y1', yScale(0))
       .attr('x2', xScale(vdsSat))
-      .attr('y2', yScale(3))
+      .attr('y2', yScale(yMax))
       .attr('stroke', 'var(--boundary-color)')
       .attr('stroke-width', 1.5)
       .attr('stroke-dasharray', '4,4');
 
-    const currentId = Id(vgs, vds);
     drawPoint(svgSelection, vds, currentId, xScale, yScale, 'operating-point', 'var(--point-color)');
 
     svgSelection.append('text')
@@ -78,11 +79,15 @@
   $: vgs, vds, updatePlot();
 
   onMount(() => {
+    // Get container width on mount
+    if (svg && svg.parentElement) {
+      containerWidth = svg.parentElement.clientWidth;
+    }
     updatePlot();
   });
 </script>
 
-<svg bind:this={svg} width={config.width} height={config.height}></svg>
+<svg bind:this={svg} width="100%" height={config.height}></svg>
 
 <style>
   svg {

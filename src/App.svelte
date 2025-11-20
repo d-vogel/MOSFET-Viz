@@ -13,25 +13,29 @@
   </header>
 
   <div class="content">
-    <div class="left-panel">
-      <div class="visualization">
-        <MosfetChannel />
-      </div>
+    <div class="visualization">
+      <MosfetChannel />
     </div>
 
-    <div class="right-panel">
-      <div class="plot">
-        <IdVdsPlot />
+    <div class="plots-container">
+      <div class="plot-with-control">
+        <div class="plot">
+          <IdVgsPlot />
+        </div>
+        <div class="control">
+          <VgsSlider />
+        </div>
       </div>
-      <div class="plot">
-        <IdVgsPlot />
+      
+      <div class="plot-with-control">
+        <div class="plot">
+          <IdVdsPlot />
+        </div>
+        <div class="control">
+          <VdsSlider />
+        </div>
       </div>
     </div>
-  </div>
-
-  <div class="controls">
-    <VgsSlider />
-    <VdsSlider />
   </div>
 </main>
 
@@ -60,51 +64,44 @@
   }
 
   .content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-bottom: 2rem;
-  }
-
-  .left-panel {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: 2rem;
   }
 
   .visualization {
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
+    margin: 0 auto;
     aspect-ratio: 5 / 3;
   }
 
-  .right-panel {
+  .plots-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .plot-with-control {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
+    width: 100%;
   }
 
   .plot {
     width: 100%;
   }
 
-  .controls {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 1.5rem;
+  .control {
+    padding: 1rem;
     background: var(--controls-bg);
     border-radius: 8px;
+    width: 100%;
   }
 
   @media (max-width: 1024px) {
-    .content {
-      grid-template-columns: 1fr;
-    }
-
-    .controls {
+    .plots-container {
       grid-template-columns: 1fr;
     }
   }

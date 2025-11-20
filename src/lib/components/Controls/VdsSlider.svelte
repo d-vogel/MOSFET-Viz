@@ -1,22 +1,40 @@
 <script lang="ts">
-  import { VDS } from '../../models/mosfet';
+  import { VDS, VGS, VdsSat } from '../../models/mosfet';
 
   let value = 3.0;
+  let vgs = 2.5;
   
-  $: VDS.set(value);
+  VGS.subscribe(v => vgs = v);
+  
+  $: vdsSat = VdsSat(vgs);
+  $: snapThreshold = 0.15; // Snap within 0.15V of VdsSat
+  
+  function handleInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    let newValue = parseFloat(target.value);
+    
+    // Snap to VdsSat if within threshold
+    if (Math.abs(newValue - vdsSat) < snapThreshold) {
+      newValue = vdsSat;
+    }
+    
+    value = newValue;
+    VDS.set(value);
+  }
 </script>
 
 <div class="slider-container">
   <label for="vds-slider">
-    VDS: {value.toFixed(2)} V
+    VDS: {value.toFixed(2)} V {Math.abs(value - vdsSat) < 0.01 ? '(VDSsat)' : ''}
   </label>
   <input
     id="vds-slider"
     type="range"
     min="0"
     max="5"
-    step="0.1"
-    bind:value={value}
+    step="0.01"
+    value={value}
+    on:input={handleInput}
   />
 </div>
 
