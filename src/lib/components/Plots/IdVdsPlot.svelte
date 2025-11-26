@@ -63,6 +63,29 @@
       .attr('stroke', 'var(--boundary-color)')
       .attr('stroke-width', 1.5)
       .attr('stroke-dasharray', '4,4');
+    // Add background rectangle for VdsSat label
+    svgSelection.append('rect')
+      .attr('x', xScale(vdsSat) - 21)
+      .attr('y', yScale(yMax) + 12)
+      .attr('width', 42)
+      .attr('height', 16)
+      .attr('fill', 'var(--plot-bg)')
+      .attr('stroke', 'var(--boundary-color)')
+      .attr('stroke-width', 1)
+      .attr('stroke-dasharray', '4,4')
+      .attr('rx', 2);
+
+    svgSelection.append('text')
+      .attr('x', xScale(vdsSat))
+      .attr('y', yScale(yMax)+25)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '12px')
+      .attr('fill', 'var(--boundary-color)')
+      .text('V')
+      .append('tspan')
+      .attr('baseline-shift', 'sub')
+      .attr('font-size', '10px')
+      .text('DS,SAT');
 
     drawPoint(svgSelection, vds, currentId, xScale, yScale, 'operating-point', 'var(--point-color)');
 
