@@ -3,7 +3,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 import preprocess from 'svelte-preprocess'
 
 export default defineConfig({
-  base: '/mosfet-animation/',
+  base: '/',
   plugins: [
     svelte({
       preprocess: preprocess()
