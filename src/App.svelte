@@ -8,8 +8,19 @@
 
 <main>
   <header>
-    <h1>MOSFET Operation Visualization</h1>
-    <p>Interactive animation of MOSFET behavior in ohmic and saturation regions</p>
+    <div class="header-content">
+      <div class="header-col">
+        <a href="https://www.fhnw.ch/de/life-sciences/ueber-uns/institute/medizintechnik-und-medizininformatik" target="_blank" rel="noopener noreferrer" class="logo-link">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/d/d3/FHNW_Logo.svg" alt="FHNW Logo" class="logo" />
+        </a>
+      </div>
+      <div class="header header-text">
+        <h1>MOSFET Regimes</h1>
+        <p>behavior in ohmic and saturation regions</p>
+      </div>
+      <div class="header-col">
+      </div>
+    </div>
   </header>
 
   <div class="content">
@@ -48,8 +59,23 @@
   }
 
   header {
-    text-align: center;
     margin-bottom: 2rem;
+  }
+
+  .header-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+  }
+
+  .header-col {
+    display: flex;
+    align-items: center;
+  }
+
+  .header-col:nth-child(2) {
+    justify-content: center;
+    text-align: center;
   }
 
   h1 {
