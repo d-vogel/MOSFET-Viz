@@ -63,7 +63,7 @@
       .attr('x', xScale(params.Vth) - 12)
       .attr('y', yScale(yMax) + 12)
       .attr('width', 24)
-      .attr('height', 16)
+      .attr('height', 24)
       .attr('fill', 'var(--plot-bg)')
       .attr('stroke', 'var(--boundary-color)')
       .attr('stroke-width', 1)

@@ -68,7 +68,7 @@
       .attr('x', xScale(vdsSat) - 21)
       .attr('y', yScale(yMax) + 12)
       .attr('width', 42)
-      .attr('height', 16)
+      .attr('height', 24)
       .attr('fill', 'var(--plot-bg)')
       .attr('stroke', 'var(--boundary-color)')
       .attr('stroke-width', 1)
