@@ -27,6 +27,9 @@
    * boxed subscript label, the operating point, the title, container-width
    * handling and the redraw cycle. Callers describe WHAT to plot; this
    * module decides HOW it is drawn. No d3 code leaks to callers.
+   *
+   * Rendering is idempotent: every element is selected-or-created once and
+   * updated in place on subsequent draws (no destroy-and-rebuild per tick).
    */
 
   /** ID as a function of the swept variable (held values closed over by the caller). */
@@ -50,13 +53,21 @@
   let svg: SVGSVGElement;
   let containerWidth = 400;
 
+  /** Select the first element matching `selector`, or create it on first paint. */
+  function selectOrAppend<P extends d3.BaseType, PDatum, T extends d3.BaseType>(
+    parent: d3.Selection<P, PDatum, null, undefined>,
+    selector: string,
+    create: (parent: d3.Selection<P, PDatum, null, undefined>) => d3.Selection<T, PDatum, null, undefined>
+  ): d3.Selection<T, PDatum, null, undefined> {
+    const existing = parent.select<T>(selector);
+    return existing.empty() ? create(parent) : existing;
+  }
+
   function updatePlot() {
     if (!svg) return;
 
     const width = containerWidth;
-
     const svgSelection = d3.select(svg);
-    svgSelection.selectAll('*').remove();
 
     // Y axis max scales with the operating point: 1.5x its value, floor of 3.
     const yMax = Math.max(3, 1.5 * operatingPoint.y);
@@ -70,29 +81,31 @@
       .domain([0, yMax])
       .range([height - margin.bottom, margin.top]);
 
-    // X axis
-    svgSelection
-      .append('g')
-      .attr('class', 'x-axis')
+    // X axis (d3 axis calls update their ticks in place)
+    selectOrAppend(svgSelection, 'g.x-axis', (parent) =>
+      parent.append('g').attr('class', 'x-axis')
+    )
       .attr('transform', `translate(0,${height - margin.bottom})`)
       .call(d3.axisBottom(xScale));
-    svgSelection
-      .append('text')
-      .attr('class', 'x-axis-label')
+
+    selectOrAppend(svgSelection, 'text.x-axis-label', (parent) =>
+      parent.append('text').attr('class', 'x-axis-label')
+    )
       .attr('text-anchor', 'middle')
       .attr('x', (width + margin.left - margin.right) / 2)
       .attr('y', height - 5)
       .text(xAxisLabel);
 
     // Y axis
-    svgSelection
-      .append('g')
-      .attr('class', 'y-axis')
+    selectOrAppend(svgSelection, 'g.y-axis', (parent) =>
+      parent.append('g').attr('class', 'y-axis')
+    )
       .attr('transform', `translate(${margin.left},0)`)
       .call(d3.axisLeft(yScale));
-    svgSelection
-      .append('text')
-      .attr('class', 'y-axis-label')
+
+    selectOrAppend(svgSelection, 'text.y-axis-label', (parent) =>
+      parent.append('text').attr('class', 'y-axis-label')
+    )
       .attr('text-anchor', 'middle')
       .attr('transform', 'rotate(-90)')
       .attr('x', -(height + margin.top - margin.bottom) / 2)
@@ -105,56 +118,70 @@
       const v = xDomain[0] + ((xDomain[1] - xDomain[0]) * i) / samples;
       points.push([v, curve(v)]);
     }
-    svgSelection
-      .append('path')
-      .datum(points)
-      .attr('class', 'id-curve')
+    selectOrAppend(svgSelection, 'path.id-curve', (parent) =>
+      parent.append('path').attr('class', 'id-curve')
+    )
       .attr('fill', 'none')
       .attr('stroke', curveColor)
       .attr('stroke-width', 2)
-      .attr('d', d3.line().x(d => xScale(d[0])).y(d => yScale(d[1])));
+      .datum(points)
+      .attr('d', d3.line().x((d) => xScale(d[0])).y((d) => yScale(d[1])));
 
-    // Regime boundary: dashed line + boxed subscript label
+    // Regime boundary: dashed line + boxed subscript label (hidden when absent)
+    const boundaryLine = selectOrAppend(svgSelection, 'line.boundary-line', (parent) =>
+      parent.append('line').attr('class', 'boundary-line')
+    )
+      .attr('stroke', 'var(--boundary-color)')
+      .attr('stroke-width', 1.5)
+      .attr('stroke-dasharray', '4,4');
+    const boundaryBg = selectOrAppend(svgSelection, 'rect.boundary-label-bg', (parent) =>
+      parent.append('rect').attr('class', 'boundary-label-bg')
+    )
+      .attr('height', 24)
+      .attr('fill', 'var(--plot-bg)')
+      .attr('stroke', 'var(--boundary-color)')
+      .attr('stroke-width', 1)
+      .attr('stroke-dasharray', '4,4')
+      .attr('rx', 2);
+    const boundaryLabel = selectOrAppend(svgSelection, 'text.boundary-label', (parent) =>
+      parent.append('text').attr('class', 'boundary-label')
+    )
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '12px')
+      .attr('fill', 'var(--boundary-color)');
+
     if (boundary) {
       const bx = xScale(boundary.x);
-      svgSelection
-        .append('line')
+      boundaryLine
+        .attr('visibility', 'visible')
         .attr('x1', bx)
         .attr('y1', yScale(0))
         .attr('x2', bx)
-        .attr('y2', yScale(yMax))
-        .attr('stroke', 'var(--boundary-color)')
-        .attr('stroke-width', 1.5)
-        .attr('stroke-dasharray', '4,4');
-      svgSelection
-        .append('rect')
+        .attr('y2', yScale(yMax));
+      boundaryBg
+        .attr('visibility', 'visible')
         .attr('x', bx - boundary.boxWidth / 2)
         .attr('y', yScale(yMax) + 12)
-        .attr('width', boundary.boxWidth)
-        .attr('height', 24)
-        .attr('fill', 'var(--plot-bg)')
-        .attr('stroke', 'var(--boundary-color)')
-        .attr('stroke-width', 1)
-        .attr('stroke-dasharray', '4,4')
-        .attr('rx', 2);
-      svgSelection
-        .append('text')
+        .attr('width', boundary.boxWidth);
+      boundaryLabel
+        .attr('visibility', 'visible')
         .attr('x', bx)
         .attr('y', yScale(yMax) + 25)
-        .attr('text-anchor', 'middle')
-        .attr('font-size', '12px')
-        .attr('fill', 'var(--boundary-color)')
         .text(boundary.label)
         .append('tspan')
         .attr('baseline-shift', 'sub')
         .attr('font-size', '10px')
         .text(boundary.sublabel);
+    } else {
+      boundaryLine.attr('visibility', 'hidden');
+      boundaryBg.attr('visibility', 'hidden');
+      boundaryLabel.attr('visibility', 'hidden');
     }
 
     // Operating point
-    svgSelection
-      .append('circle')
-      .attr('class', 'operating-point')
+    selectOrAppend(svgSelection, 'circle.operating-point', (parent) =>
+      parent.append('circle').attr('class', 'operating-point')
+    )
       .attr('cx', xScale(operatingPoint.x))
       .attr('cy', yScale(operatingPoint.y))
       .attr('r', 5)
@@ -163,8 +190,9 @@
       .attr('stroke-width', 2);
 
     // Title
-    svgSelection
-      .append('text')
+    selectOrAppend(svgSelection, 'text.plot-title', (parent) =>
+      parent.append('text').attr('class', 'plot-title')
+    )
       .attr('x', width / 2)
       .attr('y', margin.top - 5)
       .attr('text-anchor', 'middle')
