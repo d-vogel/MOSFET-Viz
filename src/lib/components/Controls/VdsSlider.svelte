@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { VDS, VGS, VdsSat } from '../../models/mosfet';
+  import { VDS, VGS, device } from '../../state';
 
   let value = 3.0;
   let vgs = 2.5;
   
   VGS.subscribe(v => vgs = v);
   
-  $: vdsSat = VdsSat(vgs);
+  $: vdsSat = device.VdsSat(vgs);
   $: snapThreshold = 0.15; // Snap within 0.15V of VdsSat
   
   function handleInput(event: Event) {

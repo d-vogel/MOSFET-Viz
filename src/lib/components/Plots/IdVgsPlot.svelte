@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import * as d3 from 'd3';
-  import { VGS, VDS, Id, params } from '../../models/mosfet';
+  import { VGS, VDS, device } from '../../state';
   import { createXScale, createYScale, drawXAxis, drawYAxis, drawCurve, drawPoint, type AxisConfig } from '../../utils/d3helpers';
 
   let svg: SVGSVGElement;
@@ -32,7 +32,7 @@
     svgSelection.selectAll('*').remove();
 
     // Calculate y-axis max as 1.5 times current operating point ID
-    const currentId = Id(vgs, vds);
+    const currentId = device.Id(vgs, vds);
     const yMax = currentId > 3 ? currentId * 1.5 : 3;
 
     const xScale = createXScale([0, 5], config);
@@ -45,22 +45,22 @@
     const samples = 100;
     for (let i = 0; i <= samples; i++) {
       const v = (5 * i) / samples;
-      points.push([v, Id(v, vds)]);
+      points.push([v, device.Id(v, vds)]);
     }
 
     drawCurve(svgSelection, points, xScale, yScale, 'id-curve', 'var(--curve-color)');
 
     svgSelection.append('line')
-      .attr('x1', xScale(params.Vth))
+      .attr('x1', xScale(device.params.Vth))
       .attr('y1', yScale(0))
-      .attr('x2', xScale(params.Vth))
+      .attr('x2', xScale(device.params.Vth))
       .attr('y2', yScale(yMax))
       .attr('stroke', 'var(--boundary-color)')
       .attr('stroke-width', 1.5)
       .attr('stroke-dasharray', '4,4');
     // Add background rectangle for Vth label
     svgSelection.append('rect')
-      .attr('x', xScale(params.Vth) - 12)
+      .attr('x', xScale(device.params.Vth) - 12)
       .attr('y', yScale(yMax) + 12)
       .attr('width', 24)
       .attr('height', 24)
@@ -71,7 +71,7 @@
       .attr('rx', 2);
 
     svgSelection.append('text')
-      .attr('x', xScale(params.Vth))
+      .attr('x', xScale(device.params.Vth))
       .attr('y', yScale(yMax)+25)
       .attr('text-anchor', 'middle')
       .attr('font-size', '12px')
