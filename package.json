@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "node --test src/lib/models/mosfet.test.ts",
     "deploy": "npm run build && gh-pages -d dist"
   },
   "devDependencies": {
