@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import * as d3 from 'd3';
-  import { VGS, VDS } from '../../state';
-  import { Id, VdsSat } from '../../models/mosfet';
+  import { VGS, VDS, device } from '../../state';
   import { createXScale, createYScale, drawXAxis, drawYAxis, drawCurve, drawPoint, type AxisConfig } from '../../utils/d3helpers';
 
   let svg: SVGSVGElement;
@@ -33,7 +32,7 @@
     svgSelection.selectAll('*').remove();
 
     // Calculate y-axis max as 1.5 times current operating point ID
-    const currentId = Id(vgs, vds);
+    const currentId = device.Id(vgs, vds);
     const yMax = currentId > 3 ? currentId * 1.5 : 3;
 
     const xScale = createXScale([0, 5], config);
@@ -46,13 +45,13 @@
     const samples = 100;
     for (let i = 0; i <= samples; i++) {
       const v = (5 * i) / samples;
-      points.push([v, Id(vgs, v)]);
+      points.push([v, device.Id(vgs, v)]);
     }
 
     drawCurve(svgSelection, points, xScale, yScale, 'id-curve', 'var(--curve-color)');
 
-    const vdsSat = VdsSat(vgs);
-    const regionPoints: [number, number][] = [[0, 0], [vdsSat, Id(vgs, vdsSat)], [vdsSat, 0]];
+    const vdsSat = device.VdsSat(vgs);
+    const regionPoints: [number, number][] = [[0, 0], [vdsSat, device.Id(vgs, vdsSat)], [vdsSat, 0]];
     
 
 
