@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { VGS } from '../../models/mosfet';
+  import { VGS } from '../../state';
 
   let value = 2.5;
   

@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import * as d3 from 'd3';
-  import { VGS, VDS, Id, params } from '../../models/mosfet';
+  import { VGS, VDS } from '../../state';
+  import { Id, params } from '../../models/mosfet';
   import { createXScale, createYScale, drawXAxis, drawYAxis, drawCurve, drawPoint, type AxisConfig } from '../../utils/d3helpers';
 
   let svg: SVGSVGElement;

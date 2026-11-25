@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { VDS, VGS, VdsSat } from '../../models/mosfet';
+  import { VDS, VGS } from '../../state';
+  import { VdsSat } from '../../models/mosfet';
 
   let value = 3.0;
   let vgs = 2.5;

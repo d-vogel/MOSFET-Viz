@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { VGS, VDS, getChannelThickness, getChannelLength, getRegion, params } from '../../models/mosfet';
+  import { VGS, VDS } from '../../state';
+  import { getChannelThickness, getChannelLength, getRegion } from '../../models/mosfet';
 
   let vgs = 2.5;
   let vds = 3.0;
