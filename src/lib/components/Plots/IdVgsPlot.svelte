@@ -11,22 +11,22 @@
   VGS.subscribe(value => vgs = value);
   VDS.subscribe(value => vds = value);
 
-  const config: AxisConfig = {
-    width: 100,
-    height: 300,
-    marginTop: 20,
-    marginRight: 20,
-    marginBottom: 40,
-    marginLeft: 50
-  };
+  const PLOT_HEIGHT = 300;
 
   let containerWidth = 400;
 
   function updatePlot() {
     if (!svg) return;
 
-    // Update config width based on container
-    config.width = containerWidth;
+    // Fresh config per render: nothing shared or mutated across renders.
+    const config: AxisConfig = {
+      width: containerWidth,
+      height: PLOT_HEIGHT,
+      marginTop: 20,
+      marginRight: 20,
+      marginBottom: 40,
+      marginLeft: 50
+    };
 
     const svgSelection = d3.select(svg);
 
@@ -114,7 +114,7 @@
   });
 </script>
 
-<svg bind:this={svg} width="100%" height={config.height}></svg>
+<svg bind:this={svg} width="100%" height={PLOT_HEIGHT}></svg>
 
 <style>
   svg {
