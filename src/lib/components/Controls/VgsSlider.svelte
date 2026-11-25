@@ -1,14 +1,16 @@
 <script lang="ts">
-  import { VGS } from '../../models/mosfet';
+  import { operatingPoint, setVgs } from '../../operatingPoint';
 
-  let value = 2.5;
-  
-  $: VGS.set(value);
+  $: vgs = $operatingPoint.vgs;
+
+  function handleInput(event: Event) {
+    setVgs(parseFloat((event.target as HTMLInputElement).value));
+  }
 </script>
 
 <div class="slider-container">
   <label for="vgs-slider">
-    VGS: {value.toFixed(2)} V
+    VGS: {vgs.toFixed(2)} V
   </label>
   <input
     id="vgs-slider"
@@ -16,7 +18,8 @@
     min="0"
     max="5"
     step="0.1"
-    bind:value={value}
+    value={vgs}
+    on:input={handleInput}
   />
 </div>
 
