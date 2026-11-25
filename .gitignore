@@ -13,3 +13,5 @@ pnpm-debug.log*
 # OS/editor artifacts
 .DS_Store
 Thumbs.db
+# Local worktrees for parallel agent work
+.worktrees/
