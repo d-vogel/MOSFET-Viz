@@ -9,6 +9,24 @@ export interface AxisConfig {
   marginLeft: number;
 }
 
+/**
+ * Select an existing descendant matching `selector`, or create it with `create`
+ * when absent. Lets render code build each element once and only update its
+ * attributes on later calls (idempotent, update-in-place rendering).
+ */
+export function selectOrAppend<
+  P extends d3.BaseType,
+  PDatum,
+  T extends d3.BaseType
+>(
+  parent: d3.Selection<P, PDatum, null, undefined>,
+  selector: string,
+  create: (parent: d3.Selection<P, PDatum, null, undefined>) => d3.Selection<T, PDatum, null, undefined>
+): d3.Selection<T, PDatum, null, undefined> {
+  const existing = parent.select<T>(selector);
+  return existing.empty() ? create(parent) : existing;
+}
+
 export function createXScale(domain: [number, number], config: AxisConfig) {
   return d3.scaleLinear()
     .domain(domain)
@@ -28,18 +46,14 @@ export function drawXAxis(
   label: string
 ) {
   const axis = d3.axisBottom(scale);
-  
-  svg.select('.x-axis').remove();
-  
-  svg.append('g')
-    .attr('class', 'x-axis')
+
+  selectOrAppend(svg, 'g.x-axis', parent =>
+    parent.append<SVGGElement>('g').attr('class', 'x-axis'))
     .attr('transform', `translate(0,${config.height - config.marginBottom})`)
     .call(axis);
-  
-  svg.select('.x-axis-label').remove();
-  
-  svg.append('text')
-    .attr('class', 'x-axis-label')
+
+  selectOrAppend(svg, 'text.x-axis-label', parent =>
+    parent.append<SVGTextElement>('text').attr('class', 'x-axis-label'))
     .attr('text-anchor', 'middle')
     .attr('x', (config.width + config.marginLeft - config.marginRight) / 2)
     .attr('y', config.height - 5)
@@ -53,18 +67,14 @@ export function drawYAxis(
   label: string
 ) {
   const axis = d3.axisLeft(scale);
-  
-  svg.select('.y-axis').remove();
-  
-  svg.append('g')
-    .attr('class', 'y-axis')
+
+  selectOrAppend(svg, 'g.y-axis', parent =>
+    parent.append<SVGGElement>('g').attr('class', 'y-axis'))
     .attr('transform', `translate(${config.marginLeft},0)`)
     .call(axis);
-  
-  svg.select('.y-axis-label').remove();
-  
-  svg.append('text')
-    .attr('class', 'y-axis-label')
+
+  selectOrAppend(svg, 'text.y-axis-label', parent =>
+    parent.append<SVGTextElement>('text').attr('class', 'y-axis-label'))
     .attr('text-anchor', 'middle')
     .attr('transform', 'rotate(-90)')
     .attr('x', -(config.height + config.marginTop - config.marginBottom) / 2)
@@ -83,12 +93,10 @@ export function drawCurve(
   const line = d3.line()
     .x(d => xScale(d[0]))
     .y(d => yScale(d[1]));
-  
-  svg.selectAll(`.${className}`).remove();
-  
-  svg.append('path')
+
+  selectOrAppend(svg, `path.${className}`, parent =>
+    parent.append<SVGPathElement>('path').attr('class', className))
     .datum(points)
-    .attr('class', className)
     .attr('fill', 'none')
     .attr('stroke', color)
     .attr('stroke-width', 2)
@@ -104,10 +112,8 @@ export function drawPoint(
   className: string,
   color: string = '#dc2626'
 ) {
-  svg.selectAll(`.${className}`).remove();
-  
-  svg.append('circle')
-    .attr('class', className)
+  selectOrAppend(svg, `circle.${className}`, parent =>
+    parent.append<SVGCircleElement>('circle').attr('class', className))
     .attr('cx', xScale(x))
     .attr('cy', yScale(y))
     .attr('r', 5)
