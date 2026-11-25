@@ -1,13 +1,10 @@
 <script lang="ts">
-  import { VGS, VDS, getChannelThickness, getChannelLength, getRegion, params } from '../../models/mosfet';
+  import { getChannelThickness, getChannelLength, getRegion, params } from '../../models/mosfet';
+  import { operatingPoint } from '../../operatingPoint';
 
-  let vgs = 2.5;
-  let vds = 3.0;
-  
-  VGS.subscribe(value => vgs = value);
-  VDS.subscribe(value => vds = value);
+  $: op = $operatingPoint;
 
-  $: region = getRegion(vgs, vds);
+  $: region = getRegion(op.vgs, op.vds);
   
   const width = 500;
   const height = 300;
@@ -24,15 +21,15 @@
     }
     
     // Get channel thickness at source (position = 0) and drain (position = 1)
-    const sourceThickness = getChannelThickness(0, vgs, vds);
-    const drainThickness = getChannelThickness(1, vgs, vds);
+    const sourceThickness = getChannelThickness(0, op.vgs, op.vds);
+    const drainThickness = getChannelThickness(1, op.vgs, op.vds);
     
     // Convert normalized thickness (0-1) to pixel heights
     const sourceHeight = sourceThickness * maxChannelHeight;
     const drainHeight = drainThickness * maxChannelHeight;
     
     // Get normalized channel length (0-1)
-    const normalizedLength = getChannelLength(vgs, vds);
+    const normalizedLength = getChannelLength(op.vgs, op.vds);
     
     // Convert to pixel position
     const effectiveChannelLength = normalizedLength * channelLength;

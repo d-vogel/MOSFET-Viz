@@ -1,15 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import * as d3 from 'd3';
-  import { VGS, VDS, Id, params } from '../../models/mosfet';
+  import { Id, params } from '../../models/mosfet';
+  import { operatingPoint } from '../../operatingPoint';
   import { createXScale, createYScale, drawXAxis, drawYAxis, drawCurve, drawPoint, type AxisConfig } from '../../utils/d3helpers';
 
   let svg: SVGSVGElement;
-  let vgs = 2.5;
-  let vds = 3.0;
-  
-  VGS.subscribe(value => vgs = value);
-  VDS.subscribe(value => vds = value);
+
+  $: op = $operatingPoint;
 
   const config: AxisConfig = {
     width: 100,
@@ -32,7 +30,7 @@
     svgSelection.selectAll('*').remove();
 
     // Calculate y-axis max as 1.5 times current operating point ID
-    const currentId = Id(vgs, vds);
+    const currentId = Id(op.vgs, op.vds);
     const yMax = currentId > 3 ? currentId * 1.5 : 3;
 
     const xScale = createXScale([0, 5], config);
@@ -45,7 +43,7 @@
     const samples = 100;
     for (let i = 0; i <= samples; i++) {
       const v = (5 * i) / samples;
-      points.push([v, Id(v, vds)]);
+      points.push([v, Id(v, op.vds)]);
     }
 
     drawCurve(svgSelection, points, xScale, yScale, 'id-curve', 'var(--curve-color)');
@@ -82,7 +80,7 @@
       .attr('font-size', '10px')
       .text('TH');
 
-    drawPoint(svgSelection, vgs, currentId, xScale, yScale, 'operating-point', 'var(--point-color)');
+    drawPoint(svgSelection, op.vgs, currentId, xScale, yScale, 'operating-point', 'var(--point-color)');
 
     svgSelection.append('text')
       .attr('x', config.width / 2)
@@ -91,10 +89,10 @@
       .attr('font-size', '12px')
       .attr('font-weight', '600')
       .attr('fill', 'var(--text-primary)')
-      .text(`ID vs VGS (VDS = ${vds.toFixed(2)}V)`);
+      .text(`ID vs VGS (VDS = ${op.vds.toFixed(2)}V)`);
   }
 
-  $: vgs, vds, updatePlot();
+  $: op, updatePlot();
 
   onMount(() => {
     // Get container width on mount

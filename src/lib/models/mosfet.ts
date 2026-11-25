@@ -1,8 +1,3 @@
-import { writable } from 'svelte/store';
-
-export const VGS = writable(2.5);
-export const VDS = writable(3.0);
-
 export interface MOSFETParams {
   Vth: number;
   K: number;
