@@ -1,15 +1,14 @@
 <script lang="ts">
-  import { VGS, VDS, device } from '../../state';
+  import { device, operatingPoint } from '../../state';
   import Plot from './Plot.svelte';
 
   // Sweep descriptor: ID as a function of VGS at the current VDS.
-  // Values track the app-wide stores; Plot owns all drawing.
-  $: vgs = $VGS;
-  $: vds = $VDS;
-  $: curve = (v: number) => device.Id(v, vds);
+  // Values track the app-wide operating point; Plot owns all drawing.
+  $: op = $operatingPoint;
+  $: curve = (v: number) => device.Id(v, op.vds);
   $: boundary = { x: device.params.Vth, label: 'V', sublabel: 'TH', boxWidth: 24 };
-  $: point = { x: vgs, y: device.Id(vgs, vds) };
-  $: title = `ID vs VGS (VDS = ${vds.toFixed(2)}V)`;
+  $: point = { x: op.vgs, y: device.Id(op.vgs, op.vds) };
+  $: title = `ID vs VGS (VDS = ${op.vds.toFixed(2)}V)`;
 </script>
 
 <Plot {curve} {boundary} operatingPoint={point} {title} xAxisLabel="VGS (V)" />

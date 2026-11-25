@@ -1,31 +1,20 @@
 <script lang="ts">
-  import { VDS, VGS, device } from '../../state';
+  import { device, operatingPoint, setVds } from '../../state';
 
-  let value = 3.0;
-  let vgs = 2.5;
-  
-  VGS.subscribe(v => vgs = v);
-  
+  $: vgs = $operatingPoint.vgs;
+  $: vds = $operatingPoint.vds;
   $: vdsSat = device.VdsSat(vgs);
-  $: snapThreshold = 0.15; // Snap within 0.15V of VdsSat
-  
+
+  // The snap-to-VdsSat rule lives in setVds, so pointer, keyboard and any
+  // future caller behave the same.
   function handleInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    let newValue = parseFloat(target.value);
-    
-    // Snap to VdsSat if within threshold
-    if (Math.abs(newValue - vdsSat) < snapThreshold) {
-      newValue = vdsSat;
-    }
-    
-    value = newValue;
-    VDS.set(value);
+    setVds(parseFloat((event.target as HTMLInputElement).value));
   }
 </script>
 
 <div class="slider-container">
   <label for="vds-slider">
-    VDS: {value.toFixed(2)} V {Math.abs(value - vdsSat) < 0.01 ? '(VDSsat)' : ''}
+    VDS: {vds.toFixed(2)} V {Math.abs(vds - vdsSat) < 0.01 ? '(VDSsat)' : ''}
   </label>
   <input
     id="vds-slider"
@@ -33,7 +22,7 @@
     min="0"
     max="5"
     step="0.01"
-    value={value}
+    value={vds}
     on:input={handleInput}
   />
 </div>
